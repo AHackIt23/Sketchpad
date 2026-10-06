@@ -10,6 +10,7 @@ var filter: Texture2D
 
 var _last_pos: Vector2
 var _has_last = false
+var _before_state: Dictionary
 
 
 func _ready() -> void:
@@ -17,6 +18,7 @@ func _ready() -> void:
 
 
 func on_pointer_down(_position: Vector2, _canvas: Canvas) -> void:
+	_before_state = _canvas.capture_state()
 	_has_last = true
 	_last_pos = _position
 	_place_stamp(_last_pos, _canvas)
@@ -40,6 +42,12 @@ func on_pointer_move(_position: Vector2, _canvas: Canvas) -> void:
 
 func on_pointer_up(_position: Vector2, _canvas: Canvas) -> void:
 	_has_last = false
+
+	var after_state = _canvas.capture_state()
+
+	UndoManager.add_action(
+		"Eraser stroke", Callable(_canvas, "restore_state").bind(after_state), Callable(_canvas, "restore_state").bind(_before_state)
+	)
 
 
 func generate_filter() -> Texture2D:
