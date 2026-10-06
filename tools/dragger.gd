@@ -7,6 +7,7 @@ var dragging := false
 var _start_mouse := Vector2.ZERO
 var _drag_sprite: Sprite2D = null
 var _layer_image: Image = null
+var _before_state: Dictionary
 
 func _init() -> void:
 	name = "Dragger"
@@ -15,6 +16,7 @@ func on_pointer_down(_position: Vector2, _canvas: Canvas) -> void:
 	if not _canvas or not _canvas._project:
 		return
 
+	_before_state = _canvas.capture_state()
 	var project: Project = _canvas._project
 	var page: Page = project.frames[project.current_frame]
 	var layer: Image = page.layers[project.current_layer]
@@ -62,3 +64,10 @@ func on_pointer_up(position: Vector2, canvas: Canvas) -> void:
 		moved.blend_rect(_layer_image, Rect2(Vector2.ZERO, _layer_image.get_size()), offset)
 		page.set_layer(project.current_layer, moved)
 		_layer_image = null
+
+	if not canvas or not canvas._project:
+		return
+
+	var after_state = canvas.capture_state()
+	UndoManager.add_action("Move layer", Callable(canvas, "restore_state").bind(after_state), Callable(canvas, "restore_state").bind(_before_state)
+	)
