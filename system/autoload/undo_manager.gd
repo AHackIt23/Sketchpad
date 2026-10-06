@@ -11,7 +11,7 @@ func add_action(
   action_name: String,
   do_callable: Callable,
   undo_callable: Callable) -> void:
-  unod_redo.create_action(action_name)
+  undo_redo.create_action(action_name)
   undo_redo.add_do_method(do_callable)
   undo_redo.add_undo_method(undo_callable)
   undo_redo.commit_action()
