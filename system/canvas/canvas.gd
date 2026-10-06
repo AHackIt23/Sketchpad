@@ -20,6 +20,25 @@ var _project: Project
 func _ready() -> void:
 	camera.movable = camera_movable
 
+func capture_state() -> Dictionary:
+	var page = _project.frames[_project.current_frame]
+	var layer_index = _project.current_layer
+
+	return {
+		"page": page,
+		"layer_index": layer_index,
+		"image": page.layers[layer_index].duplicate() 
+	}
+
+func restore_state(state: Dictionary) -> void:
+	var page : Page = state["page"]
+	var layer_index: int = state["layer_index"]
+	var image: Image = state["image"].duplicate() 
+
+	page.set_layer(layer_index, image)
+	
+	if page == _project.frames[_project.current_frame]:
+		_project.get_current_page()
 
 func attach_project(project: Project) -> void:
 	if _project and _project.new_current_page.is_connected(render_page):
