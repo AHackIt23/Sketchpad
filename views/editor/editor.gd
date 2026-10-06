@@ -20,6 +20,15 @@ func _ready() -> void:
 	)
 	page_controls.onion_skin_toggle.connect(canvas.toggle_onion_skin)
 
+## Handles undo and redo input events, calling UndoManager.undo() and UndoManager.redo() respectively
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("undo"):
+		UndoManager.undo()
+		get_viewport().set_input_as_handled()
+
+	elif event.is_action_pressed("redo"):
+		UndoManager.redo()
+		get_viewport().set_input_as_handled()
 
 ## Creates a blank project and loads into the editor.
 func new_project() -> void:
