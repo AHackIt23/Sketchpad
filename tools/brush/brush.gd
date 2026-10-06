@@ -11,12 +11,17 @@ var stamp_tex: Texture2D
 var _stroke_node: Node2D
 var _last_pos: Vector2
 var _has_last = false
+var _before_state: Dictionary
+var _canvas_ref: Canvas
 
 
 func _ready() -> void:
 	stamp_tex = generate_stamp()
 
 func on_pointer_down(_position: Vector2, _canvas: Canvas) -> void:
+	_canvas_ref = _canvas
+	_before_state = _canvas.capture_state() 
+
 	_stroke_node = Node2D.new()
 	_canvas.dynamic_node.add_child(_stroke_node)
 	_has_last = true
@@ -42,7 +47,14 @@ func on_pointer_move(_position: Vector2, _canvas: Canvas) -> void:
 
 func on_pointer_up(_position: Vector2, _canvas: Canvas) -> void:
 	_has_last = false
-	_canvas.bake_page()
+	await _canvas.bake_page()
+
+	var after_state = _canvas.capture_state()
+
+	UndoManager.add_action(
+		"Brush stroke", Callable(_canvas, "restore_state").bind(after_state),
+ 		Callable(_canvas, "restore_state").bind(_before_state)
+	)
 
 
 func generate_stamp() -> Texture2D:
